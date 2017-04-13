@@ -35,32 +35,29 @@
  *
  */
 
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkDataArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkCellArray.h"
-#include "vtkPolyDataReader.h"
+#include "vtkStandardMeshRepresenter.h"
+
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkCharArray.h>
+#include <vtkDataArray.h>
+#include <vtkDataSetAttributes.h>
+#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
+#include <vtkLongArray.h>
+#include <vtkPoints.h>
+#include <vtkPointData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkShortArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkUnsignedIntArray.h>
+#include <vtkUnsignedLongArray.h>
+#include <vtkUnsignedShortArray.h>
+
+#include <boost/filesystem.hpp>
 
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
-
-#include "vtkStandardMeshRepresenter.h"
-
-using statismo::VectorType;
-using statismo::HDF5Utils;
-using statismo::StatisticalModelException;
 
 namespace statismo {
 
@@ -182,6 +179,7 @@ vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) cons
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
     reader->SetFileName(tmpfilename.c_str());
     reader->Update();
+    boost::filesystem::remove(tmpfilename);
     if (reader->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }

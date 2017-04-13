@@ -29,21 +29,39 @@ else()
   set(Boost_address_model 32)
 endif()
 
+if (MSVC_VERSION EQUAL 1500) #VS2008
+set(boost_toolset "--toolset=msvc-9.0")
+elseif(MSVC_VERSION EQUAL 1600) #VS2010
+set(boost_toolset "--toolset=msvc-10.0")
+elseif(MSVC_VERSION EQUAL 1700) #VS2012
+set(boost_toolset "--toolset=msvc-11.0")
+elseif(MSVC_VERSION EQUAL 1800) #VS2013
+set(boost_toolset "--toolset=msvc-12.0")
+elseif(MSVC_VERSION EQUAL 1900) #VS2015
+set(boost_toolset "--toolset=msvc-14.0")
+endif(MSVC_VERSION EQUAL 1500)
+
+if(${BUILD_SHARED_LIBS} MATCHES OFF)
+  set(BUILD_LIBS "static")
+elseif(${BUILD_SHARED_LIBS} MATCHES ON)
+  set(BUILD_LIBS "shared")
+endif()
+
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
   URL ${Boost_url}
   URL_MD5 ${Boost_md5}
   UPDATE_COMMAND ""
-  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} --with-thread --with-system --with-date_time address-model=${Boost_address_model}
+  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPENDENCIES_DIR}/lib
+BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options address-model=${Boost_address_model} link=${BUILD_LIBS} ${boost_toolset}
   INSTALL_COMMAND ""
 )
 
 if( WIN32 )
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_56 )
-  set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/boost-1_56 )
+  set( BOOST_ROOT ${INSTALL_DEPENDENCIES_DIR} )
 else()
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include )
 endif()
 
-set( Boost_LIBRARY_DIR ${INSTALL_DEPECENCIES_DIR}/lib )
+set( Boost_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib )

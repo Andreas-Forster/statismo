@@ -39,13 +39,14 @@
 #ifndef ITKMODELBUILDER_H_
 #define ITKMODELBUILDER_H_
 
-#include "itkObject.h"
-#include "itkObjectFactory.h"
+#include <itkObject.h>
+#include <itkObjectFactory.h>
 
-#include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
+
 #include "PCAModelBuilder.h"
+#include "statismoITKConfig.h"
 
 namespace itk {
 
@@ -70,6 +71,8 @@ class PCAModelBuilder : public Object {
     typedef statismo::DataManager<Representer> DataManagerType;
     typedef typename DataManagerType::DataItemListType DataItemListType;
 
+    typedef typename ImplType::EigenValueMethod EigenValueMethod;
+
     PCAModelBuilder() : m_impl(ImplType::Create()) {}
 
     virtual ~PCAModelBuilder() {
@@ -90,8 +93,8 @@ class PCAModelBuilder : public Object {
 
 
 
-    typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, float noiseVariance, bool computeScores = true) {
-        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores));
+    typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, float noiseVariance, bool computeScores = true, EigenValueMethod method = ImplType::JacobiSVD) {
+        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores, method));
         typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;

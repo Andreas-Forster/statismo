@@ -38,15 +38,16 @@
 #ifndef __StatisticalModel_hxx
 #define __StatisticalModel_hxx
 
+#include <cmath>
 
+#include <fstream>
+#include <iostream>
+#include <string>
+
+#include "Exceptions.h"
+#include "HDF5Utils.h"
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
-#include "HDF5Utils.h"
-#include "Exceptions.h"
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <cmath>
 
 namespace statismo {
 
@@ -505,10 +506,17 @@ template <typename T>
 MatrixType
 StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 
+    unsigned ptId = m_representer->GetPointIdForPoint(pt);
+
+    return GetJacobian(ptId);
+}
+
+template <typename T>
+MatrixType
+StatisticalModel<T>::GetJacobian(unsigned ptId) const {
+
     unsigned Dimensions = m_representer->GetDimensions();
     MatrixType J = MatrixType::Zero(Dimensions, GetNumberOfPrincipalComponents());
-
-    unsigned ptId = m_representer->GetPointIdForPoint(pt);
 
     for(unsigned i = 0; i < Dimensions; i++) {
         unsigned idx = m_representer->MapPointIdToInternalIdx(ptId, i);

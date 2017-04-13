@@ -13,21 +13,23 @@
 #ifndef __LOW_RANK_GP_MODEL_BUILDER_H
 #define __LOW_RANK_GP_MODEL_BUILDER_H
 
+#include <cmath>
 
-#include "Representer.h"
+#include <vector>
+
+#include <boost/thread.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/future.hpp>
+
+#include "CommonTypes.h"
 #include "Config.h"
+#include "DataManager.h"
+#include "Kernels.h"
 #include "ModelInfo.h"
 #include "ModelBuilder.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
-#include "Kernels.h"
 #include "Nystrom.h"
-#include <vector>
-#include <cmath>
-#include "boost/thread.hpp"
-#include "boost/thread/future.hpp"
-#include <boost/scoped_ptr.hpp>
+#include "Representer.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
 
@@ -137,14 +139,7 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
         const MatrixValuedKernelType& kernel, unsigned numComponents,
         unsigned numPointsForNystrom = 500) const {
 
-        VectorType zeroVec = VectorType::Zero(
-                                 m_representer->GetDomain().GetNumberOfPoints()
-                                 * m_representer->GetDimensions());
-
-        typename RepresenterType::DatasetConstPointerType zeroMean =
-            m_representer->SampleVectorToSample(zeroVec);
-
-        return BuildNewModel(zeroMean, kernel, numComponents,
+        return BuildNewModel(m_representer->IdentitySample(), kernel, numComponents,
                              numPointsForNystrom);
     }
 

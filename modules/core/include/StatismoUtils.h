@@ -39,21 +39,26 @@
 #ifndef __UTILS_H_
 #define __UTILS_H_
 
-#include <fstream>
-#include "Exceptions.h"
-#include "CommonTypes.h"
-#include <boost/random.hpp>
 #include <cstdlib>
+#include <ctime>
+
 #include <algorithm>
-#include <iterator>
+#include <fstream>
 #include <iostream>
-#include "time.h"
+#include <iterator>
+#include <boost/filesystem.hpp>
 
 #ifdef _WIN32
 #define NOMINMAX // avoid including the min and max macro
 #include <windows.h>
 #include <tchar.h>
 #endif
+
+
+#include <boost/random.hpp>
+
+#include "CommonTypes.h"
+#include "Exceptions.h"
 
 namespace statismo {
 
@@ -128,22 +133,8 @@ class Utils {
 
 
     static std::string CreateTmpName(const std::string& extension) {
-#ifdef _WIN32
-        std::string tmpDirectoryName;
-        TCHAR szTempFileName[MAX_PATH];
-        DWORD dwRetVal = 0;
-        //  Gets the temp path env string (no guarantee it's a valid path).
-        dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                               szTempFileName); // buffer for path
-        tmpDirectoryName.assign(szTempFileName);
-        std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
-        return tmpfilename;
-#else
-        std::string tmpfilename = tmpnam(0);
-        tmpfilename += extension;
-        return tmpfilename;
-#endif
-
+        boost::filesystem::path uniquePath = boost::filesystem::unique_path();
+        return uniquePath.replace_extension(extension).string();
     }
 
 };

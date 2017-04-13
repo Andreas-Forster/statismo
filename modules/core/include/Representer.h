@@ -39,8 +39,9 @@
 
 #include <string>
 #include <H5Cpp.h>
-#include "Domain.h"
+
 #include "CommonTypes.h"
+#include "Domain.h"
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
@@ -279,6 +280,36 @@ class Representer {
     virtual void Save(const H5::Group& fg) const = 0;
 
     ///@}
+
+    /**
+     * \name Utiities
+     */
+    /*
+     * Returns a new dataset that corresponds to the zero element of the underlying vectorspace
+     * obtained when vectorizing a dataset.
+     *
+     */
+    virtual DatasetPointerType IdentitySample() const {
+
+        switch (this->GetType()) {
+        case POINT_SET:
+        case POLYGON_MESH:
+        case VOLUME_MESH: {
+            return CloneDataset(this->GetReference());
+            break;
+        }
+        case IMAGE:
+        case VECTOR: {
+            VectorType zeroVec = VectorType::Zero(GetDomain().GetNumberOfPoints() * GetDimensions());
+            return SampleVectorToSample(zeroVec);
+            break;
+        }
+        default: {
+            throw statismo::StatisticalModelException(
+                "No cannonical identityDataset method is defined for custom Representers.");
+        }
+        }
+    }
 };
 
 }

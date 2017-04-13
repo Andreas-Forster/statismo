@@ -35,16 +35,17 @@
  *
  */
 
-
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkPCAModelBuilder.h"
-#include "itkDataManager.h"
-#include "itkImageFileReader.h"
-#include "itkDirectory.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
+
+#include <itkDirectory.h>
+#include <itkImageFileReader.h>
+
+#include "itkDataManager.h"
+#include "itkPCAModelBuilder.h"
+#include "itkStandardImageRepresenter.h"
+#include "itkStatisticalModel.h"
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a deformation model.
@@ -77,7 +78,7 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 
 
 template <class RepresenterType, class ImageType>
-void itkExample(const char* dir, const char* modelname) {
+void itkExample(const char* dir, const char* modelname, double noiseVariance) {
 
 
 
@@ -116,7 +117,7 @@ void itkExample(const char* dir, const char* modelname) {
     }
 
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
+    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), noiseVariance);
     model->Save(modelname);
 
 }
@@ -124,7 +125,7 @@ void itkExample(const char* dir, const char* modelname) {
 int main(int argc, char* argv[]) {
 
     if (argc < 4) {
-        std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
+        std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname [noiseVariance = 0]" << std::endl;
         exit(-1);
     }
 
@@ -132,14 +133,19 @@ int main(int argc, char* argv[]) {
     const char* dir = argv[2];
     const char* modelname = argv[3];
 
+    double noiseVariance = 0;
+    if (argc > 4) {
+        noiseVariance = atof(argv[4]);
+    }
+
     if (dimension==2) {
-        itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
+        itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname, noiseVariance);
     } else if (dimension==3) {
-        itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
+        itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname, noiseVariance);
     } else {
         assert(0);
     }
 
-    std::cout << "Model building is completed successfully." << std::endl;
+    std::cout << "Model building is completed successfully with a noise variance of " << noiseVariance << "." << std::endl;
 }
 
